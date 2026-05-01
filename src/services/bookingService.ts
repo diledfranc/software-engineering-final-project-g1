@@ -1,4 +1,4 @@
-import { Room, Booking } from '../types';
+import type { Room } from '../types';
 
 class BookingService {
   /**
