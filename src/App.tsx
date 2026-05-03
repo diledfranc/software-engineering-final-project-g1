@@ -8,19 +8,27 @@ import './tailwind.css'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [availableRooms, setAvailableRooms] = useState(18);
+  const [page, setPage] = useState("dashboard");
+  const handleBooking = () => {
+  setAvailableRooms(prev => (prev > 0 ? prev - 1 : 0));
+  };
 
   if (!isLoggedIn) {
     return <Login onLogin={() => setIsLoggedIn(true)} />;
   }
 
   return (
-    <Layout>
+    <Layout setPage={setPage}>
       <div className="space-y-12 pb-12">
-        <Dashboard />
-        <div className="grid grid-cols-1 gap-12 max-w-5xl mx-auto">
-          <BookingForm />
-          <Checkout />
-        </div>
+        {page === "dashboard" && (
+          <Dashboard availableRooms={availableRooms} setPage={setPage} />
+        )}
+        {page === "booking" && (
+           <BookingForm onBook={handleBooking} />
+        )}
+        {page === "checkout" && <Checkout />}
+        {page === "checkin" && <Checkout />}
       </div>
     </Layout>
   )

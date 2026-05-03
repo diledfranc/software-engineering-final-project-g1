@@ -3,7 +3,7 @@ import { bookingService } from '../services/bookingService';
 import type { Room } from '../types';
 import { User, Phone, Mail, Calendar, Settings, MessageSquare, CheckCircle, AlertCircle } from 'lucide-react';
 
-export const BookingForm: React.FC = () => {
+export const BookingForm: React.FC<{ onBook: () => void }> = ({ onBook }) => {
   const [guestId] = useState('G001');
   const [nights, setNights] = useState(1);
   const [message, setMessage] = useState('');
@@ -28,6 +28,7 @@ export const BookingForm: React.FC = () => {
       const maskedId = bookingService.maskGuestId(guestId);
       const total = bookingService.calculateTotal(mockRoom.price, nights);
       setMessage('SUCCESS: Booking confirmed for ' + maskedId + '. Total: ฿' + total);
+      onBook();
     }
   };
 
