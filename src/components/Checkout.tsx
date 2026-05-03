@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import { CreditCard, Printer, X, ReceiptText } from 'lucide-react';
+import Decimal from 'decimal.js';
+import { getVatRate } from '../config/billingConfig';
 import { calculateTotal } from '../services/billingService';
 
 export const Checkout = () => {
@@ -7,18 +9,20 @@ export const Checkout = () => {
 
   const roomRate = 1500;
   const nights = 3;
+  const vatRate = getVatRate();
 
   const billingSummary = useMemo(
-    () => calculateTotal(roomRate, nights),
-    [roomRate, nights]
+    () => calculateTotal(roomRate, nights, vatRate),
+    [roomRate, nights, vatRate]
   );
 
-  const formatCurrency = (amount: number) =>
+  const formatCurrency = (amount: Decimal) =>
     new Intl.NumberFormat('th-TH', {
       style: 'currency',
       currency: 'THB',
+      currencyDisplay: 'code',
       minimumFractionDigits: 2,
-    }).format(amount);
+    }).format(Number(amount.toFixed(2)));
 
   const handlePrint = () => {
     window.print();
@@ -74,7 +78,7 @@ export const Checkout = () => {
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">VAT (7%)</span>
+                <span className="text-slate-600">VAT ({(vatRate * 100).toFixed(2)}%)</span>
                 <span className="font-bold text-slate-900 font-mono">
                   {formatCurrency(billingSummary.vat)}
                 </span>
@@ -107,8 +111,9 @@ export const Checkout = () => {
 
         <div className="mt-12 flex flex-wrap gap-4">
           <button
-            className="flex-1 min-w-[140px] bg-[#1E293B] text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+            className="flex-1 min-w-[140px] bg-[#1E293B] text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs disabled:opacity-60 disabled:cursor-not-allowed"
             onClick={handlePayNow}
+            disabled={isPaid}
           >
             <CreditCard size={16} />
             {isPaid ? 'Paid' : 'Pay Now'}

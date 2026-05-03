@@ -1,15 +1,31 @@
+import Decimal from 'decimal.js';
+
 export interface BillingSummary {
-  subtotal: number;
-  vat: number;
-  total: number;
+  subtotal: Decimal;
+  vat: Decimal;
+  total: Decimal;
 }
 
-const VAT_RATE = 0.07;
+const toDecimal = (value: number): Decimal => {
+  if (!Number.isFinite(value)) {
+    return new Decimal(0);
+  }
 
-export const calculateTotal = (roomRate: number, nights: number): BillingSummary => {
-  const subtotal = roomRate * nights;
-  const vat = subtotal * VAT_RATE;
-  const total = subtotal + vat;
+  return new Decimal(value);
+};
+
+export const calculateTotal = (
+  roomRate: number,
+  nights: number,
+  vatRate: number
+): BillingSummary => {
+  const safeRate = Decimal.max(toDecimal(roomRate), 0);
+  const safeNights = Decimal.max(toDecimal(nights), 0);
+  const safeVatRate = Decimal.max(toDecimal(vatRate), 0);
+
+  const subtotal = safeRate.mul(safeNights);
+  const vat = subtotal.mul(safeVatRate);
+  const total = subtotal.plus(vat);
 
   return {
     subtotal,
