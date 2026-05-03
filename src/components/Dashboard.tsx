@@ -20,7 +20,7 @@ const StatCard = ({ icon, label, value, color }: StatCardProps) => (
   </div>
 );
 
-export const Dashboard = () => {
+export const Dashboard = ({ availableRooms, setPage }: any) => {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -42,7 +42,7 @@ export const Dashboard = () => {
         <StatCard 
           icon={<DoorOpen className="text-purple-600" size={24} />} 
           label="Rooms Available" 
-          value="18" 
+          value={availableRooms >= 0 ? availableRooms : 0} 
           color="bg-purple-50"
         />
         <StatCard 
@@ -126,7 +126,9 @@ export const Dashboard = () => {
       <div className="space-y-4">
         <h3 className="text-lg font-bold text-slate-900">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-lg font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
+          <button
+            onClick={() => setPage("booking")}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-lg font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
             <Calendar size={18} className="text-slate-400" />
             New Booking
           </button>
