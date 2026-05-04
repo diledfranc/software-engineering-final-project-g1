@@ -64,31 +64,39 @@ export const Dashboard = ({ availableRooms, setPage }: any) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          icon={<Users className="text-blue-600" size={24} />} 
-          label="Total Bookings" 
-          value={stats?.totalGuests || 0} 
-          color="bg-blue-50"
-        />
-        <StatCard 
-          icon={<DoorOpen className="text-purple-600" size={24} />} 
-          label="Rooms Available" 
-          value={stats?.roomsAvailable || availableRooms || 0} 
-          color="bg-purple-50"
-        />
-        <StatCard 
-          icon={<LogOut className="text-orange-600 rotate-180" size={24} />} 
-          label="Pending Check-outs" 
-          value={stats?.pendingCheckouts || 7} 
-          color="bg-orange-50"
-        />
-        <StatCard 
-          icon={<ClipboardList className="text-emerald-600" size={24} />} 
-          label="Housekeeping Tasks" 
-          value={stats?.housekeepingTasks || 5} 
-          color="bg-emerald-50"
-        />
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="cursor-pointer transition-transform hover:scale-105" onClick={() => setPage("booking")}>
+          <StatCard 
+            icon={<Users className="text-blue-600" size={24} />} 
+            label="Total Bookings" 
+            value={stats?.totalGuests || 0} 
+            color="bg-blue-50"
+          />
+        </div>
+        <div className="cursor-pointer transition-transform hover:scale-105" onClick={() => setPage("rooms")}>
+          <StatCard 
+            icon={<DoorOpen className="text-purple-600" size={24} />} 
+            label="Rooms Available" 
+            value={stats?.roomsAvailable || availableRooms || 0} 
+            color="bg-purple-50"
+          />
+        </div>
+        <div className="cursor-pointer transition-transform hover:scale-105" onClick={() => setPage("checkout")}>
+          <StatCard 
+            icon={<LogOut className="text-orange-600 rotate-180" size={24} />} 
+            label="Pending Check-outs" 
+            value={stats?.pendingCheckouts || 7} 
+            color="bg-orange-50"
+          />
+        </div>
+        <div className="cursor-pointer transition-transform hover:scale-105" onClick={() => setPage("housekeeping")}>
+          <StatCard 
+            icon={<ClipboardList className="text-emerald-600" size={24} />} 
+            label="Housekeeping Tasks" 
+            value={stats?.housekeepingTasks || 5} 
+            color="bg-emerald-50"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

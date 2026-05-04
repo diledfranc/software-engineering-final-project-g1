@@ -32,7 +32,7 @@ const SidebarItem = ({ icon, label, active, onClick }: SidebarItemProps) => (
   </div>
 );
 
-export const Layout = ({ children, setPage }: any) => {
+export const Layout = ({ children, setPage, activePage }: any) => {
   return (
     <div className="flex min-h-screen bg-[#F8F9FA]">
       {/* Sidebar */}
@@ -48,20 +48,70 @@ export const Layout = ({ children, setPage }: any) => {
         </div>
 
         <nav className="flex-1 mt-4">
-          <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" onClick={() => setPage("dashboard")} />
-          <SidebarItem icon={<CalendarDays size={20} />} label="Booking" onClick={() => setPage("booking")} />
-          <SidebarItem icon={<DoorOpen size={20} />} label="Check-In" onClick={() => setPage("checkin")} />
-          <SidebarItem icon={<LogOut size={20} className="rotate-180" />} label="Check-Out" onClick={() => setPage("checkout")} />
-          <SidebarItem icon={<DoorOpen size={20} />} label="Rooms" />
-          <SidebarItem icon={<Wallet size={20} />} label="Billing / Invoice" onClick={() => setPage("checkout")} />
-          <SidebarItem icon={<ClipboardList size={20} />} label="Housekeeping" />
-          <SidebarItem icon={<PieChart size={20} />} label="Reports" />
-          <SidebarItem icon={<Users size={20} />} label="Users" />
-          <SidebarItem icon={<Settings size={20} />} label="Settings" />
+          <SidebarItem 
+            icon={<LayoutDashboard size={20} />} 
+            label="Dashboard" 
+            active={activePage === "dashboard"}
+            onClick={() => setPage("dashboard")} 
+          />
+          <SidebarItem 
+            icon={<CalendarDays size={20} />} 
+            label="Booking" 
+            active={activePage === "booking"}
+            onClick={() => setPage("booking")} 
+          />
+          <SidebarItem 
+            icon={<DoorOpen size={20} />} 
+            label="Check-In" 
+            active={activePage === "checkin"}
+            onClick={() => setPage("checkin")} 
+          />
+          <SidebarItem 
+            icon={<LogOut size={20} className="rotate-180" />} 
+            label="Check-Out" 
+            active={activePage === "checkout"}
+            onClick={() => setPage("checkout")} 
+          />
+          <SidebarItem 
+            icon={<DoorOpen size={20} />} 
+            label="Rooms" 
+            active={activePage === "rooms"}
+            onClick={() => setPage("rooms")} 
+          />
+          <SidebarItem 
+            icon={<Wallet size={20} />} 
+            label="Billing / Invoice" 
+            active={activePage === "checkout"}
+            onClick={() => setPage("checkout")} 
+          />
+          <SidebarItem 
+            icon={<ClipboardList size={20} />} 
+            label="Housekeeping" 
+            active={activePage === "housekeeping"}
+            onClick={() => setPage("housekeeping")} 
+          />
+          <SidebarItem 
+            icon={<PieChart size={20} />} 
+            label="Reports" 
+            active={activePage === "reports"}
+            onClick={() => setPage("reports")} 
+          />
+          <SidebarItem 
+            icon={<Users size={20} />} 
+            label="Users" 
+            active={activePage === "users"}
+            onClick={() => setPage("users")} 
+          />
+          <SidebarItem 
+            icon={<Settings size={20} />} 
+            label="Settings" 
+            active={activePage === "settings"}
+            onClick={() => setPage("settings")} 
+          />
         </nav>
 
         <div className="p-4 border-t border-slate-700">
-          <SidebarItem icon={<LogOut size={20} />} label="Logout" />
+          <SidebarItem icon={<LogOut size={20} />} label="Logout" onClick={() => window.location.reload()} />
         </div>
       </aside>
 
