@@ -3,7 +3,7 @@ import { bookingService } from '../services/bookingService';
 import type { Room } from '../types';
 import { User, Phone, Mail, Calendar, Settings, MessageSquare, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
-export const BookingForm: React.FC = () => {
+export const BookingForm: React.FC<{ onBook?: () => void }> = ({ onBook }) => {
   const [guestId] = useState('G' + Math.floor(Math.random() * 999).toString().padStart(3, '0'));
   const [guestName, setGuestName] = useState('');
   const [checkIn, setCheckIn] = useState('');
@@ -45,6 +45,7 @@ export const BookingForm: React.FC = () => {
 
       setIsError(false);
       setMessage('SUCCESS: Booking saved to your Supabase "bookings" table!');
+      if (onBook) onBook();
     } catch (err: any) {
       setIsError(true);
       setMessage('SYSTEM_ERR: ' + (err.message || 'Failed to sync with Supabase'));
@@ -149,7 +150,7 @@ export const BookingForm: React.FC = () => {
         </div>
 
         {message && (
-          <div className={`mt-8 p-4 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-300 ${isError ? 'bg-red-50 border border-red-100 text-red-700' : 'bg-green-50 border border-green-100 text-green-700'}`}>
+          <div className={mt-8 p-4 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-300 }>
             {isError ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
             <span className='text-sm font-semibold font-mono tracking-tight'>{message}</span>
           </div>

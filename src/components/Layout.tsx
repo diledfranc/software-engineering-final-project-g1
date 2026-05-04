@@ -19,20 +19,23 @@ interface SidebarItemProps {
   active?: boolean;
 }
 
-const SidebarItem = ({ icon, label, active }: SidebarItemProps) => (
-  <div className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
-    active ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-  }`}>
+const SidebarItem = ({ icon, label, active, onClick }: any) => (
+  <div
+    onClick={onClick}
+    className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
+      active ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+    }`}
+  >
     {icon}
     <span className="text-sm font-medium">{label}</span>
   </div>
 );
 
-export const Layout = ({ children }: { children: React.ReactNode }) => {
+export const Layout = ({ children, setPage }: any) => {
   return (
     <div className="flex min-h-screen bg-[#F8F9FA]">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#1E293B] text-white flex flex-shrink-0 flex-col">
+      <aside className="hidden md:flex w-64 bg-[#1E293B] text-white flex-shrink-0 flex-col">
         <div className="p-6 flex items-center gap-3 border-b border-slate-700">
           <div className="p-2 bg-blue-600 rounded-lg">
             <LayoutDashboard size={24} />
@@ -44,10 +47,10 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         <nav className="flex-1 mt-4">
-          <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" active />
-          <SidebarItem icon={<CalendarDays size={20} />} label="Booking" />
-          <SidebarItem icon={<DoorOpen size={20} />} label="Check-In" />
-          <SidebarItem icon={<LogOut size={20} className="rotate-180" />} label="Check-Out" />
+          <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" onClick={() => setPage("dashboard")} />
+          <SidebarItem icon={<CalendarDays size={20} />} label="Booking" onClick={() => setPage("booking")} />
+          <SidebarItem icon={<DoorOpen size={20} />} label="Check-In" onClick={() => setPage("checkin")} />
+          <SidebarItem icon={<LogOut size={20} className="rotate-180" />} label="Check-Out" onClick={() => setPage("checkout")} />
           <SidebarItem icon={<DoorOpen size={20} />} label="Rooms" />
           <SidebarItem icon={<Wallet size={20} />} label="Billing / Invoice" />
           <SidebarItem icon={<ClipboardList size={20} />} label="Housekeeping" />
@@ -66,9 +69,23 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         {/* Header */}
         <header className="h-16 bg-white border-b flex items-center justify-between px-8">
           <div className="flex items-center gap-4">
-            <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-md">
-              <ClipboardList size={20} />
-            </button>
+            <div className="md:hidden flex gap-2">
+              <button
+                 onClick={() => setPage("dashboard")}
+                 className="px-3 py-1 bg-slate-200 rounded text-sm">
+                 Dashboard
+              </button>
+               <button
+                 onClick={() => setPage("booking")}
+                 className="px-3 py-1 bg-slate-200 rounded text-sm">
+                 Booking
+              </button>
+              <button
+                 onClick={() => setPage("checkout")}
+                 className="px-3 py-1 bg-slate-200 rounded text-sm">
+                 Checkout
+              </button>
+            </div>
           </div>
           
           <div className="flex items-center gap-6">
