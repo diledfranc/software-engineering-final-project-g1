@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Layout } from './components/Layout'
 import { Dashboard } from './components/Dashboard'
 import { BookingForm } from './components/BookingForm'
-import { Checkout } from './components/Checkout'
+import Checkout from './components/Checkout'
 import { Login } from './components/Login'
 import './tailwind.css'
 

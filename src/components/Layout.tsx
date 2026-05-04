@@ -17,9 +17,10 @@ interface SidebarItemProps {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
+  onClick?: () => void;
 }
 
-const SidebarItem = ({ icon, label, active, onClick }: any) => (
+const SidebarItem = ({ icon, label, active, onClick }: SidebarItemProps) => (
   <div
     onClick={onClick}
     className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
@@ -52,7 +53,7 @@ export const Layout = ({ children, setPage }: any) => {
           <SidebarItem icon={<DoorOpen size={20} />} label="Check-In" onClick={() => setPage("checkin")} />
           <SidebarItem icon={<LogOut size={20} className="rotate-180" />} label="Check-Out" onClick={() => setPage("checkout")} />
           <SidebarItem icon={<DoorOpen size={20} />} label="Rooms" />
-          <SidebarItem icon={<Wallet size={20} />} label="Billing / Invoice" />
+          <SidebarItem icon={<Wallet size={20} />} label="Billing / Invoice" onClick={() => setPage("checkout")} />
           <SidebarItem icon={<ClipboardList size={20} />} label="Housekeeping" />
           <SidebarItem icon={<PieChart size={20} />} label="Reports" />
           <SidebarItem icon={<Users size={20} />} label="Users" />
