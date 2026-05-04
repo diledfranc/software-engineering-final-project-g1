@@ -59,7 +59,7 @@ class BookingService {
   }
 
   validateBooking(room: Room, nights: number): { success: boolean; error?: string } {
-    if (room.status !== 'Ready' && room.status !== 'available') {
+    if (room.status !== 'Ready') {
       return { success: false, error: `Room ${room.id} is currently ${room.status}` };
     }
     if (nights < 1) {
