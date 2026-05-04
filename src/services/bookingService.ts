@@ -1,6 +1,17 @@
 import type { Room } from '../types';
 import { supabase } from '../utils/supabaseClient';
 
+interface BookingData {
+  guest_name: string;
+  guest_id?: string;
+  room_id?: string;
+  total_amount?: number;
+  num_guests?: number;
+  status?: string;
+  check_in?: string;
+  check_out?: string;
+}
+
 class BookingService {
   async getBookings() {
     const { data, error } = await supabase
@@ -14,21 +25,21 @@ class BookingService {
   async getDashboardStats() {
     const today = new Date().toISOString().split('T')[0];
 
-    const { count: totalGuests, error: err1 } = await supabase
+    const { count: totalGuests } = await supabase
       .from('bookings')
       .select('*', { count: 'exact', head: true });
     
-    const { count: roomsAvailable, error: err2 } = await supabase
+    const { count: roomsAvailable } = await supabase
       .from('rooms')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'available');
 
-    const { count: pendingCheckouts, error: err3 } = await supabase
+    const { count: pendingCheckouts } = await supabase
       .from('bookings')
       .select('*', { count: 'exact', head: true })
       .lte('check_out', today);
 
-    const { count: dirtyRooms, error: err4 } = await supabase
+    const { count: dirtyRooms } = await supabase
       .from('rooms')
       .select('*', { count: 'exact', head: true })
       .eq('housekeeping_status', 'dirty');
@@ -41,7 +52,7 @@ class BookingService {
     };
   }
 
-  async createBooking(bookingData: any) {
+  async createBooking(bookingData: BookingData) {
     const { data, error } = await supabase
       .from('bookings')
       .insert([bookingData])
@@ -59,13 +70,38 @@ class BookingService {
   }
 
   validateBooking(room: Room, nights: number): { success: boolean; error?: string } {
-    if (room.status !== 'Ready' && room.status !== 'available') {
-      return { success: false, error: `Room ${room.id} is currently ${room.status}` };
+    if (room.status !== 'Ready') {
+      return { success: false, error: `Room ${room.roomNumber} is currently ${room.status}` };
     }
     if (nights < 1) {
       return { success: false, error: "Minimum stay is 1 night" };
     }
     return { success: true };
+  }
+
+  validateBookingDates(checkInDate: string, checkOutDate: string): void {
+    if (!checkInDate || !checkOutDate) {
+      throw new Error("Please select both check-in and check-out dates.");
+    }
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+    if (checkOut <= checkIn) {
+      throw new Error("Check-out date must be after check-in date.");
+    }
+  }
+
+  maskGuestId(guestId: string): string {
+    const cleanedId = guestId.trim();
+    const isThaiNationalId = /^\d{13}$/.test(cleanedId);
+    const isPassport = /^[A-Z0-9]{6,9}$/i.test(cleanedId);
+
+    if (isThaiNationalId) {
+      return `*********${cleanedId.slice(-4)}`;
+    }
+    if (isPassport) {
+      return `${cleanedId.slice(0, 2).toUpperCase()}****${cleanedId.slice(-2).toUpperCase()}`;
+    }
+    return "****";
   }
 
   calculateTotal(price: number, nights: number): number {

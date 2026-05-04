@@ -38,7 +38,9 @@ export const BookingForm: React.FC<{ onBook?: () => void }> = ({ onBook }) => {
       // Call Supabase service logic
       await bookingService.createBooking({
         guest_name: guestName || 'Walk-in Guest',
+        guest_id: maskedId,
         room_id: mockRoom.id,
+        total_amount: total,
         num_guests: 1,
         status: 'confirmed'
       });
