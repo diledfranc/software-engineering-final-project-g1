@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { Layout } from './components/Layout'
 import { Dashboard } from './components/Dashboard'
 import { BookingForm } from './components/BookingForm'
-import Billing from './components/Billing'
-import CheckIn from './components/CheckIn'
 import Checkout from './components/Checkout'
 import { CheckIn } from './components/CheckIn'
+import Billing from './components/Billing'
 import { Housekeeping } from './components/Housekeeping'
 import { RoomInventory } from './components/RoomInventory'
 import { Login } from './components/Login'
@@ -38,6 +37,9 @@ function App() {
         )}
         {page === "checkout" && (
           <Checkout />
+        )}
+        {page === "billing" && (
+          <Billing />
         )}
         {page === "rooms" && (
           <RoomInventory />

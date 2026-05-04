@@ -81,8 +81,8 @@ export const Layout = ({ children, setPage, activePage }: any) => {
           <SidebarItem 
             icon={<Wallet size={20} />} 
             label="Billing / Invoice" 
-            active={activePage === "checkout"}
-            onClick={() => setPage("checkout")} 
+            active={activePage === "billing"}
+            onClick={() => setPage("billing")} 
           />
           <SidebarItem 
             icon={<ClipboardList size={20} />} 
