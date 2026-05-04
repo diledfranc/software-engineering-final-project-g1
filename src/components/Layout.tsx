@@ -136,6 +136,11 @@ export const Layout = ({ children, setPage, activePage }: any) => {
                  className="px-3 py-1 bg-slate-200 rounded text-sm">
                  Checkout
               </button>
+          <button
+            onClick={() => setPage("billing")}
+            className="px-3 py-1 bg-slate-200 rounded text-sm">
+            Billing
+          </button>
             </div>
           </div>
           
