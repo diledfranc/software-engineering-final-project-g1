@@ -21,6 +21,15 @@ export const RoomInventory = () => {
     fetchRooms();
   }, []);
 
+  const updateRoomStatus = async (id: string, newStatus: string) => {
+    const { error } = await supabase
+      .from('rooms')
+      .update({ status: newStatus })
+      .eq('id', id);
+    
+    if (!error) fetchRooms();
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-end">
@@ -42,20 +51,31 @@ export const RoomInventory = () => {
               <div className="p-3 bg-slate-900 text-white rounded-xl font-black text-xl">
                  {room.room_number}
               </div>
-              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                room.status === 'available' ? 'bg-emerald-100 text-emerald-700' :
-                room.status === 'occupied' ? 'bg-blue-100 text-blue-700' : 
-                'bg-orange-100 text-orange-700'
-              }`}>
-                {room.status}
-              </span>
+              <div className="flex flex-col items-end gap-2">
+                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
+                  room.status === 'available' ? 'bg-emerald-100 text-emerald-700' :
+                  room.status === 'occupied' ? 'bg-blue-100 text-blue-700' : 
+                  'bg-orange-100 text-orange-700'
+                }`}>
+                  {room.status}
+                </span>
+                <select 
+                  value={room.status}
+                  onChange={(e) => updateRoomStatus(room.id, e.target.value)}
+                  className="text-[10px] border-none bg-slate-50 font-bold rounded p-1 cursor-pointer focus:ring-0"
+                >
+                  <option value="available">Available</option>
+                  <option value="occupied">Occupied</option>
+                  <option value="maintenance">Maintenance</option>
+                </select>
+              </div>
             </div>
             
             <h3 className="font-bold text-slate-900 mb-1">{room.room_type}</h3>
             <div className="flex items-center justify-between mt-4">
                <p className="text-lg font-black text-slate-900">${room.price || room.price_per_night}</p>
-               <div className="flex gap-1 text-slate-300">
-                  <Clock size={16} />
+               <div className="flex gap-1 text-slate-400 items-center">
+                  <span className="text-[10px] uppercase font-bold">{room.housekeeping_status}</span>
                </div>
             </div>
           </div>

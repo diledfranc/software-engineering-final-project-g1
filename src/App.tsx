@@ -5,6 +5,9 @@ import { BookingForm } from './components/BookingForm'
 import Checkout from './components/Checkout'
 import { CheckIn } from './components/CheckIn'
 import Billing from './components/Billing'
+import { Reports } from './components/Reports'
+import { Users } from './components/Users'
+import { Settings } from './components/Settings'
 import { Housekeeping } from './components/Housekeeping'
 import { RoomInventory } from './components/RoomInventory'
 import { Login } from './components/Login'
@@ -47,12 +50,14 @@ function App() {
         {page === "housekeeping" && (
           <Housekeeping />
         )}
-        {/* Modules with placeholder UI for now */}
-        {['reports', 'users', 'settings'].includes(page) && (
-          <div className="p-8 bg-white rounded-xl shadow-sm border border-slate-200 max-w-5xl mx-auto">
-            <h2 className="text-xl font-bold mb-4 capitalize">{page} Module</h2>
-            <p className="text-slate-500 text-sm italic font-medium">BCE Controller Layer: {page}Controller pending runtime binding.</p>
-          </div>
+        {page === "reports" && (
+          <Reports />
+        )}
+        {page === "users" && (
+          <Users />
+        )}
+        {page === "settings" && (
+          <Settings />
         )}
       </div>
     </Layout>
