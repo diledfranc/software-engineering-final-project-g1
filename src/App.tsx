@@ -1,47 +1,53 @@
-import { useState } from "react";
-import BookingForm from "./components/BookingForm";
-import RoomStatusPanel from "./components/RoomStatusPanel";
-import DashboardStats from "./components/DashboardStats";
+import React, { useState } from 'react';
+import { Layout } from './components/Layout';
+import { Dashboard } from './components/Dashboard';
+import { BookingForm } from './components/BookingForm';
+import { Login } from './components/Login';
+
+// Placeholder components for modules being integrated
+const CheckIn = () => <div className="p-8 bg-white rounded-xl shadow-sm border border-slate-200">
+  <h2 className="text-xl font-bold mb-4">Guest Check-In</h2>
+  <p className="text-slate-500">Scan QR or enter Booking ID to proceed with room assignment.</p>
+</div>;
+
+const Checkout = () => <div className="p-8 bg-white rounded-xl shadow-sm border border-slate-200">
+  <h2 className="text-xl font-bold mb-4">Guest Check-Out & Billing</h2>
+  <p className="text-slate-500">Generate final invoice and process payment transactions.</p>
+</div>;
+
+const RoomInventory = () => <div className="p-8 bg-white rounded-xl shadow-sm border border-slate-200">
+  <h2 className="text-xl font-bold mb-4">Room Management</h2>
+  <p className="text-slate-500">Real-time status of all 50 hotel rooms.</p>
+</div>;
 
 function App() {
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
-  function handleBookingCreated() {
-    setRefreshKey((oldValue) => oldValue + 1);
+  if (!isLoggedIn) {
+    return <Login onLogin={() => setIsLoggedIn(true)} />;
   }
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#0f172a",
-        color: "#e5e7eb",
-        padding: "40px 20px",
-        fontFamily: "Arial, sans-serif",
-      }}
+    <Layout 
+      activeTab={activeTab} 
+      onTabChange={setActiveTab} 
+      onLogout={() => setIsLoggedIn(false)}
     >
-      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-        <header style={{ textAlign: "center", marginBottom: "32px" }}>
-          <h1 style={{ fontSize: "42px", marginBottom: "8px" }}>
-            Hotel Management System
-          </h1>
-
-          <p style={{ color: "#94a3b8", fontSize: "16px" }}>
-            Booking Logic & Real-Time Dashboard
-          </p>
-        </header>
-
-        <div key={refreshKey}>
-          <DashboardStats />
+      {activeTab === 'dashboard' && <Dashboard setPage={setActiveTab} />}
+      {activeTab === 'bookings' && <BookingForm />}
+      {activeTab === 'checkin' && <CheckIn />}
+      {activeTab === 'checkout' && <Checkout />}
+      {activeTab === 'rooms' && <RoomInventory />}
+      
+      {/* Other integrated sections */}
+      {['billing', 'housekeeping', 'reports', 'users', 'settings'].includes(activeTab) && (
+        <div className="p-8 bg-white rounded-xl shadow-sm border border-slate-200">
+          <h2 className="text-xl font-bold mb-4 capitalize">{activeTab} Module</h2>
+          <p className="text-slate-500 text-sm italic font-medium">BCE Controller Layer: {activeTab}Controller pending runtime binding.</p>
         </div>
-
-        <BookingForm onBookingCreated={handleBookingCreated} />
-
-        <div key={`rooms-${refreshKey}`}>
-          <RoomStatusPanel />
-        </div>
-      </div>
-    </main>
+      )}
+    </Layout>
   );
 }
 

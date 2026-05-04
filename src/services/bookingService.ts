@@ -1,142 +1,101 @@
-import type { Booking, BookingInput, Room, RoomStatus } from "../types/hotelTypes";
+import type { Room } from '../types';
+import { supabase } from '../utils/supabaseClient';
 
-let rooms: Room[] = [
-  {
-    id: 1,
-    roomNumber: "101",
-    roomType: "Standard",
-    rate: 1200,
-    status: "Ready",
-  },
-  {
-    id: 2,
-    roomNumber: "102",
-    roomType: "Standard",
-    rate: 1200,
-    status: "Ready",
-  },
-  {
-    id: 3,
-    roomNumber: "201",
-    roomType: "Deluxe",
-    rate: 1800,
-    status: "Ready",
-  },
-  {
-    id: 4,
-    roomNumber: "202",
-    roomType: "Deluxe",
-    rate: 1800,
-    status: "Maintenance",
-  },
-];
-
-let bookings: Booking[] = [];
-
-export function getRooms(): Room[] {
-  return rooms;
-}
-
-export function getBookings(): Booking[] {
-  return bookings;
-}
-
-export function updateRoomStatus(roomId: number, newStatus: RoomStatus): void {
-  rooms = rooms.map((room) =>
-    room.id === roomId ? { ...room, status: newStatus } : room
-  );
-}
-
-export function validateBookingDates(checkInDate: string, checkOutDate: string): void {
-  const checkIn = new Date(checkInDate);
-  const checkOut = new Date(checkOutDate);
-
-  if (!checkInDate || !checkOutDate) {
-    throw new Error("Please select both check-in and check-out dates.");
+class BookingService {
+  async getBookings() {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
   }
 
-  if (checkOut <= checkIn) {
-    throw new Error("Check-out date must be after check-in date.");
+  async getDashboardStats() {
+    const today = new Date().toISOString().split('T')[0];
+
+    const { count: totalGuests } = await supabase
+      .from('bookings')
+      .select('*', { count: 'exact', head: true });
+    
+    const { count: roomsAvailable } = await supabase
+      .from('rooms')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'available');
+
+    const { count: pendingCheckouts } = await supabase
+      .from('bookings')
+      .select('*', { count: 'exact', head: true })
+      .lte('check_out', today);
+
+    const { count: dirtyRooms } = await supabase
+      .from('rooms')
+      .select('*', { count: 'exact', head: true })
+      .eq('housekeeping_status', 'dirty');
+
+    return {
+      totalGuests: totalGuests || 0,
+      roomsAvailable: roomsAvailable || 0,
+      pendingCheckouts: pendingCheckouts || 0,
+      housekeepingTasks: dirtyRooms || 0
+    };
+  }
+
+  async createBooking(bookingData: any) {
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert([bookingData])
+      .select();
+    if (error) throw error;
+    
+    if (bookingData.room_id) {
+        await supabase
+          .from('rooms')
+          .update({ status: 'occupied' })
+          .eq('id', bookingData.room_id);
+    }
+    
+    return data;
+  }
+
+  validateBooking(room: Room, nights: number): { success: boolean; error?: string } {
+    if (room.status !== 'Ready' && room.status !== 'available') {
+      return { success: false, error: `Room ${room.id} is currently ${room.status}` };
+    }
+    if (nights < 1) {
+      return { success: false, error: "Minimum stay is 1 night" };
+    }
+    return { success: true };
+  }
+
+  validateBookingDates(checkInDate: string, checkOutDate: string): void {
+    if (!checkInDate || !checkOutDate) {
+      throw new Error("Please select both check-in and check-out dates.");
+    }
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+    if (checkOut <= checkIn) {
+      throw new Error("Check-out date must be after check-in date.");
+    }
+  }
+
+  maskGuestId(guestId: string): string {
+    const cleanedId = guestId.trim();
+    const isThaiNationalId = /^\d{13}$/.test(cleanedId);
+    const isPassport = /^[A-Z0-9]{6,9}$/i.test(cleanedId);
+
+    if (isThaiNationalId) {
+      return `*********${cleanedId.slice(-4)}`;
+    }
+    if (isPassport) {
+      return `${cleanedId.slice(0, 2).toUpperCase()}****${cleanedId.slice(-2).toUpperCase()}`;
+    }
+    return "****";
+  }
+
+  calculateTotal(price: number, nights: number): number {
+    return price * nights;
   }
 }
 
-export function maskGuestId(guestId: string): string {
-  const cleanedId = guestId.trim();
-
-  const isThaiNationalId = /^\d{13}$/.test(cleanedId);
-  const isPassport = /^[A-Z0-9]{6,9}$/i.test(cleanedId);
-
-  if (isThaiNationalId) {
-    return `*********${cleanedId.slice(-4)}`;
-  }
-
-  if (isPassport) {
-    return `${cleanedId.slice(0, 2).toUpperCase()}****${cleanedId
-      .slice(-2)
-      .toUpperCase()}`;
-  }
-
-  return "****";
-}
-
-export function createBooking(input: BookingInput): Booking {
-  // 1. Validate dates
-  validateBookingDates(input.checkInDate, input.checkOutDate);
-
-  // 2. Check if room exists
-  const room = rooms.find((r) => r.id === input.roomId);
-  if (!room) {
-    throw new Error("Selected room does not exist.");
-  }
-
-  // 3. Check if room is available
-  if (room.status !== "Ready") {
-  throw new Error(
-    "This room is currently not available. Please select another room."
-  );
-}
-
-const overlappingBooking = bookings.find(
-  (booking) =>
-    booking.roomId === input.roomId &&
-    booking.status === "Confirmed" &&
-    !(
-      input.checkOutDate <= booking.checkInDate ||
-      input.checkInDate >= booking.checkOutDate
-    )
-);
-
-if (overlappingBooking) {
-  throw new Error("This room is already booked for the selected dates.");
-}
-
-  // 4. Create booking object
-  const newBooking: Booking = {
-    id: bookings.length + 1,
-    guestName: input.guestName,
-    guestId: maskGuestId(input.guestId),
-    roomId: input.roomId,
-    checkInDate: input.checkInDate,
-    checkOutDate: input.checkOutDate,
-    status: "Confirmed",
-  };
-
-  // 5. Save booking
-  bookings.push(newBooking);
-
-  // 6. Update room status → Occupied
-updateRoomStatus(input.roomId, "Occupied");
-
-console.log(
-  `Audit Log: Booking #${newBooking.id} created for room ${input.roomId}`
-);
-
-return newBooking;
-
-}
-
-export function getActiveBookingByRoomId(roomId: number): Booking | undefined {
-  return bookings.find(
-    (booking) => booking.roomId === roomId && booking.status === "Confirmed"
-  );
-}
+export const bookingService = new BookingService();
