@@ -150,7 +150,7 @@ export const BookingForm: React.FC<{ onBook?: () => void }> = ({ onBook }) => {
         </div>
 
         {message && (
-          <div className={mt-8 p-4 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-300 }>
+          <div className={`mt-8 p-4 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-300 ${isError ? 'bg-red-50 border border-red-100 text-red-700' : 'bg-green-50 border border-green-100 text-green-700'}`}>
             {isError ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
             <span className='text-sm font-semibold font-mono tracking-tight'>{message}</span>
           </div>

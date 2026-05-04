@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
   CalendarDays, 
@@ -9,17 +9,17 @@ import {
   DoorOpen, 
   Wallet, 
   PieChart,
-  Bell,
-  User
+  Bell
 } from 'lucide-react';
 
 interface SidebarItemProps {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
+  onClick?: () => void;
 }
 
-const SidebarItem = ({ icon, label, active, onClick }: any) => (
+const SidebarItem = ({ icon, label, active, onClick }: SidebarItemProps) => (
   <div
     onClick={onClick}
     className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
@@ -31,11 +31,11 @@ const SidebarItem = ({ icon, label, active, onClick }: any) => (
   </div>
 );
 
-export const Layout = ({ children, setPage }: any) => {
+export const Layout = ({ children, activeTab, onTabChange, onLogout }: any) => {
   return (
-    <div className="flex min-h-screen bg-[#F8F9FA]">
+    <div className="flex min-h-screen bg-[#F8F9FA] w-full">
       {/* Sidebar */}
-      <aside className="hidden md:flex w-64 bg-[#1E293B] text-white flex-shrink-0 flex-col">
+      <aside className="hidden md:flex w-64 bg-[#1E293B] text-white flex-shrink-0 flex-col fixed h-full">
         <div className="p-6 flex items-center gap-3 border-b border-slate-700">
           <div className="p-2 bg-blue-600 rounded-lg">
             <LayoutDashboard size={24} />
@@ -47,45 +47,85 @@ export const Layout = ({ children, setPage }: any) => {
         </div>
 
         <nav className="flex-1 mt-4">
-          <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" onClick={() => setPage("dashboard")} />
-          <SidebarItem icon={<CalendarDays size={20} />} label="Booking" onClick={() => setPage("booking")} />
-          <SidebarItem icon={<DoorOpen size={20} />} label="Check-In" onClick={() => setPage("checkin")} />
-          <SidebarItem icon={<LogOut size={20} className="rotate-180" />} label="Check-Out" onClick={() => setPage("checkout")} />
-          <SidebarItem icon={<DoorOpen size={20} />} label="Rooms" />
-          <SidebarItem icon={<Wallet size={20} />} label="Billing / Invoice" />
-          <SidebarItem icon={<ClipboardList size={20} />} label="Housekeeping" />
-          <SidebarItem icon={<PieChart size={20} />} label="Reports" />
-          <SidebarItem icon={<Users size={20} />} label="Users" />
-          <SidebarItem icon={<Settings size={20} />} label="Settings" />
+          <SidebarItem 
+            icon={<LayoutDashboard size={20} />} 
+            label="Dashboard" 
+            active={activeTab === 'dashboard'} 
+            onClick={() => onTabChange('dashboard')} 
+          />
+          <SidebarItem 
+            icon={<CalendarDays size={20} />} 
+            label="Booking" 
+            active={activeTab === 'bookings'} 
+            onClick={() => onTabChange('bookings')} 
+          />
+          <SidebarItem 
+            icon={<DoorOpen size={20} />} 
+            label="Check-In" 
+            active={activeTab === 'checkin'} 
+            onClick={() => onTabChange('checkin')} 
+          />
+          <SidebarItem 
+            icon={<LogOut size={20} className="rotate-180" />} 
+            label="Check-Out" 
+            active={activeTab === 'checkout'} 
+            onClick={() => onTabChange('checkout')} 
+          />
+          <SidebarItem 
+            icon={<DoorOpen size={20} />} 
+            label="Rooms" 
+            active={activeTab === 'rooms'} 
+            onClick={() => onTabChange('rooms')} 
+          />
+          <SidebarItem 
+            icon={<Wallet size={20} />} 
+            label="Billing / Invoice" 
+            active={activeTab === 'billing'} 
+            onClick={() => onTabChange('billing')} 
+          />
+          <SidebarItem 
+            icon={<ClipboardList size={20} />} 
+            label="Housekeeping" 
+            active={activeTab === 'housekeeping'} 
+            onClick={() => onTabChange('housekeeping')} 
+          />
+          <SidebarItem 
+            icon={<PieChart size={20} />} 
+            label="Reports" 
+            active={activeTab === 'reports'} 
+            onClick={() => onTabChange('reports')} 
+          />
+          <SidebarItem 
+            icon={<Users size={20} />} 
+            label="Users" 
+            active={activeTab === 'users'} 
+            onClick={() => onTabChange('users')} 
+          />
+          <SidebarItem 
+            icon={<Settings size={20} />} 
+            label="Settings" 
+            active={activeTab === 'settings'} 
+            onClick={() => onTabChange('settings')} 
+          />
         </nav>
 
         <div className="p-4 border-t border-slate-700">
-          <SidebarItem icon={<LogOut size={20} />} label="Logout" />
+          <SidebarItem 
+            icon={<LogOut size={20} />} 
+            label="Logout" 
+            onClick={onLogout}
+          />
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col md:ml-64">
         {/* Header */}
-        <header className="h-16 bg-white border-b flex items-center justify-between px-8">
+        <header className="h-16 bg-white border-b flex items-center justify-between px-8 sticky top-0 z-10 w-full">
           <div className="flex items-center gap-4">
-            <div className="md:hidden flex gap-2">
-              <button
-                 onClick={() => setPage("dashboard")}
-                 className="px-3 py-1 bg-slate-200 rounded text-sm">
-                 Dashboard
-              </button>
-               <button
-                 onClick={() => setPage("booking")}
-                 className="px-3 py-1 bg-slate-200 rounded text-sm">
-                 Booking
-              </button>
-              <button
-                 onClick={() => setPage("checkout")}
-                 className="px-3 py-1 bg-slate-200 rounded text-sm">
-                 Checkout
-              </button>
-            </div>
+            <h2 className="text-slate-500 font-medium text-sm capitalize">
+              Software Engineering Final Project / {activeTab}
+            </h2>
           </div>
           
           <div className="flex items-center gap-6">
@@ -96,20 +136,20 @@ export const Layout = ({ children, setPage }: any) => {
             <div className="flex items-center gap-3 pl-6 border-l">
               <div className="text-right">
                 <p className="text-sm font-medium text-slate-900">Receptionist</p>
-                <p className="text-xs text-slate-500">Online</p>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-tighter">Online</p>
               </div>
-              <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600">
-                <User size={20} />
+              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold border-2 border-white shadow-sm ring-1 ring-slate-200">
+                R
               </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="p-8">
+        {/* Content */}
+        <main className="p-8 max-w-7xl w-full mx-auto">
           {children}
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

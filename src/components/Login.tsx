@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { LayoutDashboard, Lock, User, Eye } from 'lucide-react';
 
 export const Login = ({ onLogin }: { onLogin: () => void }) => {
   return (
@@ -31,7 +31,7 @@ export const Login = ({ onLogin }: { onLogin: () => void }) => {
                </div>
             </div>
           </div>
-          <p className="text-slate-400 text-sm font-medium">Â© 2025 Hotel Management System</p>
+          <p className="text-slate-400 text-sm font-medium">© 2025 Hotel Management System</p>
         </div>
         
         {/* Decorative Circles */}
@@ -69,7 +69,7 @@ export const Login = ({ onLogin }: { onLogin: () => void }) => {
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors" size={20} />
                 <input 
                   type="password" 
-                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                  placeholder="••••••••"
                   className="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-slate-100 focus:border-slate-900 focus:bg-white transition-all outline-none font-medium"
                 />
                 <button className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900">
@@ -96,14 +96,6 @@ export const Login = ({ onLogin }: { onLogin: () => void }) => {
                 Don't have an account? <button className="text-slate-900 font-bold hover:underline">Contact Administrator</button>
             </p>
           </div>
-        </div>
-        
-        {/* Mobile Logo */}
-        <div className="absolute top-8 left-8 lg:hidden flex items-center gap-2">
-             <div className="p-2 bg-slate-900 rounded-lg text-white">
-              <LayoutDashboard size={24} />
-            </div>
-            <h1 className="text-sm font-black text-slate-900">HMS.</h1>
         </div>
       </div>
     </div>

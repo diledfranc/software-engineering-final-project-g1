@@ -2,11 +2,6 @@ import type { Room } from '../types';
 import { supabase } from '../utils/supabaseClient';
 
 class BookingService {
-  /**
-   * Ported Logic from Python BookingManager (BCE - Control Layer)
-   * Implements Guard Clauses and PDPA Masking logic.
-   */
-
   async getBookings() {
     const { data, error } = await supabase
       .from('bookings')
@@ -17,6 +12,8 @@ class BookingService {
   }
 
   async getDashboardStats() {
+    const today = new Date().toISOString().split('T')[0];
+
     const { count: totalGuests, error: err1 } = await supabase
       .from('bookings')
       .select('*', { count: 'exact', head: true });
@@ -26,13 +23,21 @@ class BookingService {
       .select('*', { count: 'exact', head: true })
       .eq('status', 'available');
 
-    if (err1 || err2) throw err1 || err2;
+    const { count: pendingCheckouts, error: err3 } = await supabase
+      .from('bookings')
+      .select('*', { count: 'exact', head: true })
+      .lte('check_out', today);
+
+    const { count: dirtyRooms, error: err4 } = await supabase
+      .from('rooms')
+      .select('*', { count: 'exact', head: true })
+      .eq('housekeeping_status', 'dirty');
 
     return {
       totalGuests: totalGuests || 0,
       roomsAvailable: roomsAvailable || 0,
-      pendingCheckouts: 7, // Mocked for now
-      housekeepingTasks: 5  // Mocked for now
+      pendingCheckouts: pendingCheckouts || 0,
+      housekeepingTasks: dirtyRooms || 0
     };
   }
 
@@ -42,27 +47,25 @@ class BookingService {
       .insert([bookingData])
       .select();
     if (error) throw error;
+    
+    if (bookingData.room_id) {
+        await supabase
+          .from('rooms')
+          .update({ status: 'occupied' })
+          .eq('id', bookingData.room_id);
+    }
+    
     return data;
   }
 
   validateBooking(room: Room, nights: number): { success: boolean; error?: string } {
-    // Guard Clause: Check room status
-    if (room.status !== 'Ready') {
-      return { success: false, error: `Room ${room.roomNumber} is currently ${room.status}` };
+    if (room.status !== 'Ready' && room.status !== 'available') {
+      return { success: false, error: `Room ${room.id} is currently ${room.status}` };
     }
-
-    // Guard Clause: Minimum stay (Boundary Case from previous tests)
     if (nights < 1) {
       return { success: false, error: "Minimum stay is 1 night" };
     }
-
     return { success: true };
-  }
-
-  maskGuestId(guestId: string): string {
-    // PDPA Masking logic: G001 -> G0***
-    if (guestId.length <= 2) return guestId;
-    return guestId.substring(0, 2) + '*'.repeat(3);
   }
 
   calculateTotal(price: number, nights: number): number {
