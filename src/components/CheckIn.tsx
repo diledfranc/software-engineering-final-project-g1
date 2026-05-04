@@ -1,33 +1,45 @@
-import { CheckCircle, DoorOpen } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, MapPin, User, LogIn, CheckCircle2 } from 'lucide-react';
 
-export default function CheckIn() {
+export const CheckIn = () => {
+  const [bookingId, setBookingId] = useState('');
+
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="px-6 py-5 border-b bg-slate-50/50 flex items-center gap-3">
-        <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
-          <DoorOpen size={20} />
-        </div>
-        <h2 className="text-2xl font-semibold text-slate-900">Check-In</h2>
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="space-y-2">
+        <h2 className="text-3xl font-black text-slate-900">Guest Check-In</h2>
+        <p className="text-slate-500">Scan QR code or enter booking ID to finalize room assignment.</p>
       </div>
 
-      <div className="p-6 md:p-8">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-600 space-y-3">
-          <p className="text-slate-900 font-semibold">Check-in details will appear here.</p>
-          <p>
-            This placeholder keeps the navigation intact until the full check-in flow is implemented.
-          </p>
+      <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6">
+        <div className="relative">
+          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Booking Reference</label>
+          <div className="flex gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <input 
+                type="text" 
+                value={bookingId}
+                onChange={(e) => setBookingId(e.target.value)}
+                placeholder="Enter Booking ID (e.g., BK-7729)"
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-slate-100 focus:border-slate-900 outline-none"
+              />
+            </div>
+            <button className="px-8 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all">Search</button>
+          </div>
         </div>
 
-        <div className="mt-10 flex gap-4">
-          <button className="flex-2 bg-[#1E293B] text-white py-4 rounded-xl font-bold hover:bg-slate-800 shadow-lg uppercase tracking-widest text-xs flex items-center justify-center gap-2">
-            <CheckCircle size={16} />
-            Confirm Check-In
-          </button>
-          <button className="flex-1 bg-white border border-slate-200 text-slate-500 py-4 rounded-xl font-bold hover:bg-slate-50 uppercase tracking-widest text-xs">
-            Cancel
-          </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-40">
+           <div className="p-6 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-center space-y-3">
+              <User size={40} className="text-slate-300" />
+              <p className="text-slate-400 font-medium">Guest Identity Info<br/>(PDPA Protected)</p>
+           </div>
+           <div className="p-6 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-center space-y-3">
+              <MapPin size={40} className="text-slate-300" />
+              <p className="text-slate-400 font-medium">Room Assignment<br/>Details</p>
+           </div>
         </div>
       </div>
     </div>
   );
-}
+};
