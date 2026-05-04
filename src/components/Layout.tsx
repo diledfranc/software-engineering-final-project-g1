@@ -53,7 +53,7 @@ export const Layout = ({ children, setPage }: any) => {
           <SidebarItem icon={<DoorOpen size={20} />} label="Check-In" onClick={() => setPage("checkin")} />
           <SidebarItem icon={<LogOut size={20} className="rotate-180" />} label="Check-Out" onClick={() => setPage("checkout")} />
           <SidebarItem icon={<DoorOpen size={20} />} label="Rooms" />
-          <SidebarItem icon={<Wallet size={20} />} label="Billing / Invoice" onClick={() => setPage("checkout")} />
+          <SidebarItem icon={<Wallet size={20} />} label="Billing / Invoice" onClick={() => setPage("billing")} />
           <SidebarItem icon={<ClipboardList size={20} />} label="Housekeeping" />
           <SidebarItem icon={<PieChart size={20} />} label="Reports" />
           <SidebarItem icon={<Users size={20} />} label="Users" />
@@ -86,6 +86,11 @@ export const Layout = ({ children, setPage }: any) => {
                  className="px-3 py-1 bg-slate-200 rounded text-sm">
                  Checkout
               </button>
+          <button
+            onClick={() => setPage("billing")}
+            className="px-3 py-1 bg-slate-200 rounded text-sm">
+            Billing
+          </button>
             </div>
           </div>
           

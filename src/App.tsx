@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Layout } from './components/Layout'
 import { Dashboard } from './components/Dashboard'
 import { BookingForm } from './components/BookingForm'
+import Billing from './components/Billing'
+import CheckIn from './components/CheckIn'
 import Checkout from './components/Checkout'
 import { Login } from './components/Login'
 import './tailwind.css'
@@ -27,8 +29,9 @@ function App() {
         {page === "booking" && (
            <BookingForm onBook={handleBooking} />
         )}
-        {page === "checkout" && <Checkout />}
-        {page === "checkin" && <Checkout />}
+  {page === "checkout" && <Checkout />}
+  {page === "billing" && <Billing />}
+  {page === "checkin" && <CheckIn />}
       </div>
     </Layout>
   )
