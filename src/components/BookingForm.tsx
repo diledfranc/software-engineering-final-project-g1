@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { bookingService } from '../services/bookingService';
 import type { Room } from '../types';
-import { User, Phone, Mail, Calendar, Settings, MessageSquare, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Settings, MessageSquare, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 export const BookingForm: React.FC = () => {
-  const [guestId] = useState('G001');
+  const [guestId] = useState('G' + Math.floor(Math.random() * 999).toString().padStart(3, '0'));
+  const [guestName, setGuestName] = useState('');
+  const [checkIn, setCheckIn] = useState('');
   const [nights, setNights] = useState(1);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [mockRoom, setMockRoom] = useState<Room>({
     id: 'room-101',
@@ -17,17 +20,36 @@ export const BookingForm: React.FC = () => {
     price: 1500
   });
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
+    setIsLoading(true);
     const validation = bookingService.validateBooking(mockRoom, nights);
     
     if (!validation.success) {
       setIsError(true);
       setMessage('USER_ERR: ' + validation.error);
-    } else {
-      setIsError(false);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
       const maskedId = bookingService.maskGuestId(guestId);
       const total = bookingService.calculateTotal(mockRoom.price, nights);
-      setMessage('SUCCESS: Booking confirmed for ' + maskedId + '. Total: ฿' + total);
+
+      // Call Supabase service logic
+      await bookingService.createBooking({
+        guest_name: guestName || 'Walk-in Guest',
+        room_id: mockRoom.id,
+        num_guests: 1,
+        status: 'confirmed'
+      });
+
+      setIsError(false);
+      setMessage('SUCCESS: Booking saved to your Supabase "bookings" table!');
+    } catch (err: any) {
+      setIsError(true);
+      setMessage('SYSTEM_ERR: ' + (err.message || 'Failed to sync with Supabase'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -47,7 +69,13 @@ export const BookingForm: React.FC = () => {
               <label className='block text-sm font-semibold text-slate-700 mb-2'>Guest Name</label>
               <div className='relative'>
                 <User className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400' size={18} />
-                <input type='text' placeholder='Enter guest name' className='w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all outline-none' />
+                <input 
+                  type='text' 
+                  placeholder='Enter guest name' 
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  className='w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all outline-none' 
+                />
               </div>
             </div>
             <div>
@@ -85,7 +113,12 @@ export const BookingForm: React.FC = () => {
             <div className='grid grid-cols-2 gap-4'>
                <div>
                   <label className='block text-sm font-semibold text-slate-700 mb-2'>Check-In</label>
-                  <input type='date' className='w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none' />
+                  <input 
+                    type='date' 
+                    value={checkIn}
+                    onChange={(e) => setCheckIn(e.target.value)}
+                    className='w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none' 
+                  />
                </div>
                <div>
                   <label className='block text-sm font-semibold text-slate-700 mb-2'>Check-Out</label>
@@ -98,12 +131,17 @@ export const BookingForm: React.FC = () => {
                     <div>
                         <label className='block text-[10px] font-bold text-slate-500 uppercase'>Status</label>
                         <select value={mockRoom.status} onChange={(e) => setMockRoom({...mockRoom, status: e.target.value as any})} className='w-full px-3 py-2 bg-white border border-blue-200 rounded-lg text-xs font-bold font-mono cursor-pointer'>
-                            <option value='Ready'>Ready</option><option value='Dirty'>Dirty</option><option value='Occupied'>Occupied</option>
+                          <option value='Ready'>Ready</option>
+                          <option value='Occupied'>Occupied</option>
+                          <option value='Cleaning'>Cleaning</option>
                         </select>
                     </div>
                     <div>
-                        <label className='block text-[10px] font-bold text-slate-500 uppercase'>Nights</label>
-                        <input type='number' min='1' value={nights} onChange={(e) => setNights(parseInt(e.target.value))} className='w-full px-3 py-2 bg-white border border-blue-200 rounded-lg text-xs font-bold font-mono' />
+                        <label className='block text-[10px] font-bold text-slate-500 uppercase'>Stay</label>
+                        <div className='flex items-center gap-2'>
+                          <input type='number' value={nights} onChange={(e) => setNights(Number(e.target.value))} className='w-full px-3 py-2 bg-white border border-blue-200 rounded-lg text-xs font-bold font-mono outline-none focus:ring-1 focus:ring-blue-500' />
+                          <span className='text-[10px] font-bold text-slate-400'>NIGHTS</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -111,16 +149,26 @@ export const BookingForm: React.FC = () => {
         </div>
 
         {message && (
-          <div className={'mt-8 p-4 rounded-xl flex items-center gap-3 border ' + (!isError ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-rose-50 border-rose-100 text-rose-800')}>
-            {!isError ? <CheckCircle size={20} className='text-emerald-500' /> : <AlertCircle size={20} className='text-rose-500' />}
-            <span className='font-bold text-sm tracking-tight'>{message}</span>
+          <div className={`mt-8 p-4 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-300 ${isError ? 'bg-red-50 border border-red-100 text-red-700' : 'bg-green-50 border border-green-100 text-green-700'}`}>
+            {isError ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
+            <span className='text-sm font-semibold font-mono tracking-tight'>{message}</span>
           </div>
         )}
 
-        <div className='mt-10 flex gap-4'>
-          <button onClick={handleBooking} className='flex-[2] bg-[#1E293B] text-white py-4 rounded-xl font-bold hover:bg-slate-800 shadow-lg uppercase tracking-widest text-xs'>Confirm Booking</button>
-          <button className='flex-1 bg-white border border-slate-200 text-slate-500 py-4 rounded-xl font-bold hover:bg-slate-50 uppercase tracking-widest text-xs'>Cancel</button>
-        </div>
+        <button 
+          onClick={handleBooking}
+          disabled={isLoading}
+          className='mt-8 w-full bg-slate-900 hover:bg-black text-white py-4 px-6 rounded-xl font-bold transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group'
+        >
+          {isLoading ? (
+            <Loader2 className='animate-spin' size={20} />
+          ) : (
+            <>
+              <MessageSquare size={18} className='group-hover:translate-x-1 transition-transform' />
+              Confirm Booking & Sync to Supabase
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
