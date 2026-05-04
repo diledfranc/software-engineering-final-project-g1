@@ -1,6 +1,17 @@
 import type { Room } from '../types';
 import { supabase } from '../utils/supabaseClient';
 
+interface BookingData {
+  guest_name: string;
+  guest_id?: string;
+  room_id?: string;
+  total_amount?: number;
+  num_guests?: number;
+  status?: string;
+  check_in?: string;
+  check_out?: string;
+}
+
 class BookingService {
   async getBookings() {
     const { data, error } = await supabase
@@ -41,7 +52,7 @@ class BookingService {
     };
   }
 
-  async createBooking(bookingData: any) {
+  async createBooking(bookingData: BookingData) {
     const { data, error } = await supabase
       .from('bookings')
       .insert([bookingData])
@@ -60,7 +71,7 @@ class BookingService {
 
   validateBooking(room: Room, nights: number): { success: boolean; error?: string } {
     if (room.status !== 'Ready') {
-      return { success: false, error: `Room ${room.id} is currently ${room.status}` };
+      return { success: false, error: `Room ${room.roomNumber} is currently ${room.status}` };
     }
     if (nights < 1) {
       return { success: false, error: "Minimum stay is 1 night" };
