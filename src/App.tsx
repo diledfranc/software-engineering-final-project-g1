@@ -5,9 +5,7 @@ import { BookingForm } from './components/BookingForm'
 import Billing from './components/Billing'
 import CheckIn from './components/CheckIn'
 import Checkout from './components/Checkout'
-import { CheckIn } from './components/CheckIn'
-import { Housekeeping } from './components/Housekeeping'
-import { RoomInventory } from './components/RoomInventory'
+import Report from './components/Report'
 import { Login } from './components/Login'
 import './tailwind.css'
 
@@ -15,9 +13,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [availableRooms, setAvailableRooms] = useState(18);
   const [page, setPage] = useState("dashboard");
-
   const handleBooking = () => {
-    setAvailableRooms(prev => (prev > 0 ? prev - 1 : 0));
+  setAvailableRooms(prev => (prev > 0 ? prev - 1 : 0));
   };
 
   if (!isLoggedIn) {
@@ -25,7 +22,7 @@ function App() {
   }
 
   return (
-    <Layout setPage={setPage} activePage={page}>
+    <Layout setPage={setPage}>
       <div className="space-y-12 pb-12">
         {page === "dashboard" && (
           <Dashboard availableRooms={availableRooms} setPage={setPage} />
@@ -33,25 +30,10 @@ function App() {
         {page === "booking" && (
            <BookingForm onBook={handleBooking} />
         )}
-        {page === "checkin" && (
-          <CheckIn />
-        )}
-        {page === "checkout" && (
-          <Checkout />
-        )}
-        {page === "rooms" && (
-          <RoomInventory />
-        )}
-        {page === "housekeeping" && (
-          <Housekeeping />
-        )}
-        {/* Modules with placeholder UI for now */}
-        {['reports', 'users', 'settings'].includes(page) && (
-          <div className="p-8 bg-white rounded-xl shadow-sm border border-slate-200 max-w-5xl mx-auto">
-            <h2 className="text-xl font-bold mb-4 capitalize">{page} Module</h2>
-            <p className="text-slate-500 text-sm italic font-medium">BCE Controller Layer: {page}Controller pending runtime binding.</p>
-          </div>
-        )}
+  {page === "checkout" && <Checkout />}
+  {page === "billing" && <Billing />}
+  {page === "checkin" && <CheckIn />}
+  {page === "reports" && <Report />}
       </div>
     </Layout>
   )
