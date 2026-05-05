@@ -10,6 +10,7 @@ import { Users } from './components/Users'
 import { Settings } from './components/Settings'
 import { Housekeeping } from './components/Housekeeping'
 import { RoomInventory } from './components/RoomInventory'
+import AuditLogs from './components/AuditLogs'
 import { Login } from './components/Login'
 import './tailwind.css'
 
@@ -57,6 +58,9 @@ function App() {
         )}
         {page === "settings" && (
           <Settings />
+        )}
+        {page === "audit" && (
+          <AuditLogs />
         )}
       </div>
     </Layout>

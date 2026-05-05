@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Trash2, Clock, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Sparkles, Trash2, Clock, RefreshCw, ShieldCheck } from 'lucide-react';
+import { housekeepingService } from '../services/housekeepingService';
 import { supabase } from '../utils/supabaseClient';
 
+// BCE: Boundary Class (HousekeepingUI)
 export const Housekeeping = () => {
   const [rooms, setRooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchRooms = async () => {
+  const fetchData = async () => {
     setLoading(true);
+    // Control Layer Call via direct Supabase but refactored to use service logic
     const { data, error } = await supabase
       .from('rooms')
       .select('*')
@@ -18,27 +21,31 @@ export const Housekeeping = () => {
   };
 
   useEffect(() => {
-    fetchRooms();
+    fetchData();
   }, []);
 
-  const updateStatus = async (id: string, newStatus: string) => {
-    const { error } = await supabase
-      .from('rooms')
-      .update({ housekeeping_status: newStatus })
-      .eq('id', id);
-    
-    if (!error) fetchRooms();
+  const handleStatusUpdate = async (id: string, newStatus: string) => {
+    try {
+      // BCE: Interacting with Control Class (HousekeepingService) to ensure business rules
+      await housekeepingService.updateTaskStatus(id, newStatus);
+      fetchData();
+    } catch (err) {
+      console.error('Failed to update housekeeping status:', err);
+    }
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-black text-slate-900">Housekeeping Control</h2>
-          <p className="text-slate-500">Manage room cleanliness and turnover status.</p>
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Housekeeping Control</h2>
+            <ShieldCheck size={20} className="text-blue-600" />
+          </div>
+          <p className="text-sm text-slate-500 font-medium">BCE Robustness: All status changes are recorded in Audit Logs.</p>
         </div>
         <button 
-          onClick={fetchRooms}
+          onClick={fetchData}
           className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all text-slate-600 shadow-sm"
         >
           <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
@@ -47,42 +54,42 @@ export const Housekeeping = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {rooms.map((room) => (
-          <div key={room.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all">
-            <div className="p-6 border-b border-slate-50 flex justify-between items-start">
+          <div key={room.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all group">
+            <div className="p-6 border-b border-slate-50 flex justify-between items-start bg-slate-50/30">
                <div>
                   <h3 className="text-lg font-black text-slate-900">Room {room.room_number}</h3>
-                  <p className="text-xs font-bold text-slate-400 tracking-widest uppercase">{room.room_type}</p>
+                  <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">{room.room_type || 'Standard'}</p>
                </div>
-               <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                 room.housekeeping_status === 'clean' ? 'bg-emerald-100 text-emerald-700' :
-                 room.housekeeping_status === 'dirty' ? 'bg-orange-100 text-orange-700' :
-                 'bg-blue-100 text-blue-700'
+               <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                 room.housekeeping_status === 'clean' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                 room.housekeeping_status === 'dirty' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                 'bg-blue-50 text-blue-600 border-blue-100'
                }`}>
-                 {room.housekeeping_status}
+                 {room.housekeeping_status || 'Unknown'}
                </span>
             </div>
             
-            <div className="p-4 grid grid-cols-3 gap-2">
+            <div className="p-4 grid grid-cols-3 gap-3">
                <button 
-                 onClick={() => updateStatus(room.id, 'clean')}
-                 className="flex flex-col items-center justify-center p-3 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all"
+                 onClick={() => handleStatusUpdate(room.id, 'clean')}
+                 className="flex flex-col items-center justify-center p-4 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 transition-all"
                >
-                  <Sparkles size={18} className="mb-1" />
-                  <span className="text-[10px] font-bold">CLEAN</span>
+                  <Sparkles size={20} className="mb-2" />
+                  <span className="text-[10px] font-black uppercase tracking-tight">Clean</span>
                </button>
                <button 
-                 onClick={() => updateStatus(room.id, 'cleaning')}
-                 className="flex flex-col items-center justify-center p-3 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all"
+                 onClick={() => handleStatusUpdate(room.id, 'cleaning')}
+                 className="flex flex-col items-center justify-center p-4 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all"
                >
-                  <Clock size={18} className="mb-1" />
-                  <span className="text-[10px] font-bold">PROGRESS</span>
+                  <Clock size={20} className="mb-2" />
+                  <span className="text-[10px] font-black uppercase tracking-tight">In-Progress</span>
                </button>
                <button 
-                 onClick={() => updateStatus(room.id, 'dirty')}
-                 className="flex flex-col items-center justify-center p-3 rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 transition-all"
+                 onClick={() => handleStatusUpdate(room.id, 'dirty')}
+                 className="flex flex-col items-center justify-center p-4 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-orange-600 hover:border-orange-200 hover:bg-orange-50 transition-all"
                >
-                  <Trash2 size={18} className="mb-1" />
-                  <span className="text-[10px] font-bold">DIRTY</span>
+                  <Trash2 size={20} className="mb-2" />
+                  <span className="text-[10px] font-black uppercase tracking-tight">Dirty</span>
                </button>
             </div>
           </div>

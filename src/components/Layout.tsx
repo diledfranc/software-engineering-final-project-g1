@@ -10,7 +10,8 @@ import {
   Wallet, 
   PieChart,
   Bell,
-  User
+  User,
+  History
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -102,8 +103,12 @@ export const Layout = ({ children, setPage, activePage }: any) => {
             active={activePage === "users"}
             onClick={() => setPage("users")} 
           />
-          <SidebarItem 
-            icon={<Settings size={20} />} 
+          <SidebarItem             icon={<History size={20} />} 
+            label="Audit Logs" 
+            active={activePage === "audit"}
+            onClick={() => setPage("audit")} 
+          />
+          <SidebarItem             icon={<Settings size={20} />} 
             label="Settings" 
             active={activePage === "settings"}
             onClick={() => setPage("settings")} 

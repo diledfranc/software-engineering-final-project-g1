@@ -1,5 +1,6 @@
-import type { Room } from '../types';
+import type { Room, Booking } from '../types';
 import { supabase } from '../utils/supabaseClient';
+import { auditService } from './auditService';
 
 interface BookingData {
   guest_name: string;
@@ -37,7 +38,7 @@ class BookingService {
     const { count: pendingCheckouts } = await supabase
       .from('bookings')
       .select('*', { count: 'exact', head: true })
-      .lte('check_out', today);
+      .eq('status', 'checked-in');
 
     const { count: dirtyRooms } = await supabase
       .from('rooms')
@@ -56,9 +57,19 @@ class BookingService {
     const { data, error } = await supabase
       .from('bookings')
       .insert([bookingData])
-      .select();
+      .select()
+      .single();
     if (error) throw error;
     
+    // BCE Audit Robustness
+    await auditService.logAction(
+      'CREATE_BOOKING',
+      'booking',
+      data.id,
+      null,
+      data
+    );
+
     if (bookingData.room_id) {
         await supabase
           .from('rooms')

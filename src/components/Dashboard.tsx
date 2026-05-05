@@ -85,7 +85,7 @@ export const Dashboard = ({ availableRooms, setPage }: any) => {
           <StatCard 
             icon={<LogOut className="text-orange-600 rotate-180" size={24} />} 
             label="Pending Check-outs" 
-            value={stats?.pendingCheckouts || 7} 
+            value={stats?.pendingCheckouts || 0} 
             color="bg-orange-50"
           />
         </div>
@@ -93,7 +93,7 @@ export const Dashboard = ({ availableRooms, setPage }: any) => {
           <StatCard 
             icon={<ClipboardList className="text-emerald-600" size={24} />} 
             label="Housekeeping Tasks" 
-            value={stats?.housekeepingTasks || 5} 
+            value={stats?.housekeepingTasks || 0} 
             color="bg-emerald-50"
           />
         </div>
