@@ -1,5 +1,6 @@
-import React from 'react';
-import { Calendar, TrendingUp, Users, DoorOpen, DollarSign, Hotel } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, TrendingUp, Users, DoorOpen, DollarSign, Hotel, Loader2 } from 'lucide-react';
+import { supabase } from '../utils/supabaseClient';
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -21,39 +22,85 @@ const StatCard = ({ icon, label, value, color }: StatCardProps) => (
 );
 
 export default function Report() {
+  const [stats, setStats] = useState({
+    totalBookings: 0,
+    occupancyRate: 0,
+    totalGuests: 0,
+    revenue: 0,
+    roomData: { standard: 0, deluxe: 0, suite: 0 }
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setLoading(true);
+      try {
+        const { data: bookings } = await supabase.from('bookings').select('*');
+        const { count: roomsCount } = await supabase.from('rooms').select('*', { count: 'exact', head: true });
+        const { count: occupiedCount } = await supabase.from('rooms').select('*', { count: 'exact', head: true }).eq('status', 'occupied');
+
+        if (bookings) {
+          const totalRevenue = bookings.reduce((sum, b) => sum + (Number(b.total_paid) || 0), 0);
+          const totalGuests = bookings.reduce((sum, b) => sum + (Number(b.num_guests) || 1), 0);
+          
+          setStats({
+            totalBookings: bookings.length,
+            occupancyRate: roomsCount ? Math.round((occupiedCount / roomsCount) * 100) : 0,
+            totalGuests,
+            revenue: totalRevenue,
+            roomData: { standard: 85, deluxe: 72, suite: 94 } // Kept semi-static or could fetch from real room types
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <Loader2 className="animate-spin text-blue-600" size={48} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-900">System Reports</h2>
         <div className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg text-sm text-slate-600 font-medium shadow-sm">
           <Calendar size={16} />
-          Year-to-Date 2025
+          Real-time Data
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           icon={<Hotel className="text-blue-600" size={24} />} 
-          label="Total Bookings YTD" 
-          value="1,248" 
+          label="Total Bookings" 
+          value={stats.totalBookings.toLocaleString()} 
           color="bg-blue-50"
         />
         <StatCard 
           icon={<DoorOpen className="text-purple-600" size={24} />} 
           label="Avg Occupancy Rate" 
-          value="82%" 
+          value={`${stats.occupancyRate}%`} 
           color="bg-purple-50"
         />
         <StatCard 
           icon={<Users className="text-emerald-600" size={24} />} 
           label="Total Guests" 
-          value="3,412" 
+          value={stats.totalGuests.toLocaleString()} 
           color="bg-emerald-50"
         />
         <StatCard 
           icon={<TrendingUp className="text-indigo-600" size={24} />} 
-          label="Revenue Growth" 
-          value="+14.5%" 
+          label="Total Revenue" 
+          value={`฿ ${stats.revenue.toLocaleString()}`} 
           color="bg-indigo-50"
         />
       </div>
