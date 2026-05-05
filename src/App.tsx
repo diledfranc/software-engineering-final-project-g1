@@ -26,7 +26,7 @@ function App() {
   }
 
   return (
-    <Layout setPage={setPage}>
+    <Layout setPage={setPage} activePage={page}>
       <div className="space-y-12 pb-12">
         {page === "dashboard" && (
           <Dashboard availableRooms={availableRooms} setPage={setPage} />

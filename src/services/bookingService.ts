@@ -10,6 +10,10 @@ interface BookingData {
   status?: string;
   check_in?: string;
   check_out?: string;
+  phone?: string;
+  email?: string;
+  check_in_date?: string;
+  check_out_date?: string;
 }
 
 class BookingService {

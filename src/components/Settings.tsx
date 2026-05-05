@@ -2,9 +2,19 @@ import React, { useState } from 'react';
 import { Settings as SettingsIcon, Globe, Bell, Shield, Database, Palette, Save, Moon, Sun, Lock, CreditCard, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export const Settings = () => {
-    const [theme, setTheme] = useState('light');
+    const [theme, setThemeState] = useState(() => localStorage.getItem('theme') || 'light');
     const [notifications, setNotifications] = useState(true);
     const [saveStatus, setSaveStatus] = useState<null | 'saving' | 'saved'>(null);
+
+    const setTheme = (newTheme: string) => {
+        setThemeState(newTheme);
+        localStorage.setItem('theme', newTheme);
+        if (newTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    };
 
     const handleSave = () => {
         setSaveStatus('saving');
