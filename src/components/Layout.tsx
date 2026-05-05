@@ -32,7 +32,7 @@ const SidebarItem = ({ icon, label, active, onClick }: SidebarItemProps) => (
   </div>
 );
 
-export const Layout = ({ children, setPage }: any) => {
+export const Layout = ({ children, setPage, activePage }: any) => {
   return (
     <div className="flex min-h-screen bg-[#F8F9FA]">
       {/* Sidebar */}

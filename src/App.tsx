@@ -5,7 +5,7 @@ import { BookingForm } from './components/BookingForm'
 import Checkout from './components/Checkout'
 import { CheckIn } from './components/CheckIn'
 import Billing from './components/Billing'
-import { Reports } from './components/Reports'
+import Report from './components/Report'
 import { Users } from './components/Users'
 import { Settings } from './components/Settings'
 import { Housekeeping } from './components/Housekeeping'
@@ -26,7 +26,7 @@ function App() {
   }
 
   return (
-    <Layout setPage={setPage}>
+    <Layout setPage={setPage} activePage={page}>
       <div className="space-y-12 pb-12">
         {page === "dashboard" && (
           <Dashboard availableRooms={availableRooms} setPage={setPage} />
@@ -50,7 +50,7 @@ function App() {
           <Housekeeping />
         )}
         {page === "reports" && (
-          <Reports />
+          <Report />
         )}
         {page === "users" && (
           <Users />
