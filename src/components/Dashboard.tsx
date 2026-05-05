@@ -120,13 +120,22 @@ export const Dashboard = ({ availableRooms, setPage }: any) => {
                   <tr key={booking.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <p className="font-bold text-slate-900">{booking.guest_name}</p>
-                      <p className="text-xs text-slate-400 font-medium">Guest ID: #{booking.id.slice(0, 8)}</p>
+                      <p className="text-xs text-slate-400 font-medium tracking-tight">
+                        ID: {booking.custom_id || `#${booking.id.slice(0, 8)}`}
+                      </p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-slate-100 rounded text-xs font-bold text-slate-600">Room {booking.room_id}</span>
+                      <span className="px-2 py-1 bg-slate-100 rounded text-xs font-bold text-slate-600">
+                        {booking.room_id?.replace('room-', '') || 'N/A'}
+                      </span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-slate-600 font-medium">{new Date(booking.check_in).toLocaleDateString()}</p>
+                      <div className="text-xs font-medium text-slate-600">
+                        {(booking.check_in || booking.check_in_date) ? new Date(booking.check_in || booking.check_in_date).toLocaleDateString() : 'N/A'}
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        to {(booking.check_out || booking.check_out_date) ? new Date(booking.check_out || booking.check_out_date).toLocaleDateString() : 'N/A'}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-[10px] font-black uppercase tracking-wider">
@@ -158,7 +167,7 @@ export const Dashboard = ({ availableRooms, setPage }: any) => {
                 <span className="text-white font-bold opacity-80">Connected</span>
               </div>
               <button 
-                onClick={() => setPage && setPage('bookings')}
+                onClick={() => setPage && setPage('booking')}
                 className="w-full mt-4 bg-white text-slate-900 py-3 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors"
               >
                 Create New Booking

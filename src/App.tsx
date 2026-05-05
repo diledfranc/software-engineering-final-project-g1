@@ -2,10 +2,14 @@ import { useState } from 'react'
 import { Layout } from './components/Layout'
 import { Dashboard } from './components/Dashboard'
 import { BookingForm } from './components/BookingForm'
-import Billing from './components/Billing'
-import CheckIn from './components/CheckIn'
 import Checkout from './components/Checkout'
-import Report from './components/Report'
+import { CheckIn } from './components/CheckIn'
+import Billing from './components/Billing'
+import { Reports } from './components/Reports'
+import { Users } from './components/Users'
+import { Settings } from './components/Settings'
+import { Housekeeping } from './components/Housekeeping'
+import { RoomInventory } from './components/RoomInventory'
 import { Login } from './components/Login'
 import './tailwind.css'
 
@@ -30,10 +34,30 @@ function App() {
         {page === "booking" && (
            <BookingForm onBook={handleBooking} />
         )}
-  {page === "checkout" && <Checkout />}
-  {page === "billing" && <Billing />}
-  {page === "checkin" && <CheckIn />}
-  {page === "reports" && <Report />}
+        {page === "checkin" && (
+          <CheckIn />
+        )}
+        {page === "checkout" && (
+          <Checkout />
+        )}
+        {page === "billing" && (
+          <Billing />
+        )}
+        {page === "rooms" && (
+          <RoomInventory />
+        )}
+        {page === "housekeeping" && (
+          <Housekeeping />
+        )}
+        {page === "reports" && (
+          <Reports />
+        )}
+        {page === "users" && (
+          <Users />
+        )}
+        {page === "settings" && (
+          <Settings />
+        )}
       </div>
     </Layout>
   )
