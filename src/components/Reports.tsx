@@ -19,13 +19,15 @@ export const Reports = () => {
                 .select('*');
 
             if (!error && bookings) {
-                const totalRevenue = bookings.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0);
+                const totalRevenue = bookings.reduce((sum: number, b: any) => sum + (b.total_amount || b.total_paid || 0), 0);
                 const totalBookings = bookings.length;
                 
-                // Group by day for a mini-chart look
+                // Group by the actual checkout/payment date instead of creation/check-in
                 const grouped = bookings.reduce((acc: any, b: any) => {
-                    const date = b.created_at?.split('T')[0] || 'Unknown';
-                    acc[date] = (acc[date] || 0) + (b.total_amount || 0);
+                    // Use check_out_date if available (real revenue realization), else fallback to created_at
+                    const rawDate = b.check_out || b.check_out_date || b.created_at;
+                    const date = rawDate?.split('T')[0] || 'Unknown';
+                    acc[date] = (acc[date] || 0) + (b.total_amount || b.total_paid || 0);
                     return acc;
                 }, {});
 
@@ -56,7 +58,13 @@ export const Reports = () => {
                         <DollarSign size={24} />
                     </div>
                     <p className="text-sm font-bold text-slate-500">Total Revenue</p>
-                    <p className="text-3xl font-black text-slate-900">${stats.totalRevenue.toLocaleString()}</p>
+                    <p className="text-3xl font-black text-slate-900">
+                        {new Intl.NumberFormat('th-TH', {
+                            style: 'currency',
+                            currency: 'THB',
+                            currencyDisplay: 'code'
+                        }).format(stats.totalRevenue)}
+                    </p>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div className="p-3 bg-blue-50 text-blue-600 rounded-xl w-fit mb-4">
@@ -87,7 +95,13 @@ export const Reports = () => {
                                     <span className="text-sm font-medium text-slate-600">{item.date}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <span className="font-bold text-slate-900">${item.amount.toLocaleString()}</span>
+                                    <span className="font-bold text-slate-900">
+                                        {new Intl.NumberFormat('th-TH', {
+                                            style: 'currency',
+                                            currency: 'THB',
+                                            currencyDisplay: 'code'
+                                        }).format(item.amount)}
+                                    </span>
                                     <ChevronRight size={16} className="text-slate-300" />
                                 </div>
                             </div>
