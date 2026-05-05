@@ -32,7 +32,7 @@ const SidebarItem = ({ icon, label, active, onClick }: SidebarItemProps) => (
   </div>
 );
 
-export const Layout = ({ children, setPage, activePage }: any) => {
+export const Layout = ({ children, setPage }: any) => {
   return (
     <div className="flex min-h-screen bg-[#F8F9FA]">
       {/* Sidebar */}
@@ -111,7 +111,7 @@ export const Layout = ({ children, setPage, activePage }: any) => {
         </nav>
 
         <div className="p-4 border-t border-slate-700">
-          <SidebarItem icon={<LogOut size={20} />} label="Logout" onClick={() => window.location.reload()} />
+          <SidebarItem icon={<LogOut size={20} />} label="Logout" />
         </div>
       </aside>
 
@@ -140,6 +140,11 @@ export const Layout = ({ children, setPage, activePage }: any) => {
             onClick={() => setPage("billing")}
             className="px-3 py-1 bg-slate-200 rounded text-sm">
             Billing
+          </button>
+          <button
+            onClick={() => setPage("reports")}
+            className="px-3 py-1 bg-slate-200 rounded text-sm">
+            Reports
           </button>
             </div>
           </div>

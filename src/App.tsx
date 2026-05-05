@@ -17,9 +17,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [availableRooms, setAvailableRooms] = useState(18);
   const [page, setPage] = useState("dashboard");
-
   const handleBooking = () => {
-    setAvailableRooms(prev => (prev > 0 ? prev - 1 : 0));
+  setAvailableRooms(prev => (prev > 0 ? prev - 1 : 0));
   };
 
   if (!isLoggedIn) {
@@ -27,7 +26,7 @@ function App() {
   }
 
   return (
-    <Layout setPage={setPage} activePage={page}>
+    <Layout setPage={setPage}>
       <div className="space-y-12 pb-12">
         {page === "dashboard" && (
           <Dashboard availableRooms={availableRooms} setPage={setPage} />
