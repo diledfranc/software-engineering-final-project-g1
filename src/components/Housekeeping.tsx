@@ -40,9 +40,7 @@ export const Housekeeping = () => {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Housekeeping Control</h2>
-            <ShieldCheck size={20} className="text-blue-600" />
           </div>
-          <p className="text-sm text-slate-500 font-medium">BCE Robustness: All status changes are recorded in Audit Logs.</p>
         </div>
         <button 
           onClick={fetchData}

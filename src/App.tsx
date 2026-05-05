@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Layout } from './components/Layout'
 import { Dashboard } from './components/Dashboard'
 import { BookingForm } from './components/BookingForm'
@@ -12,18 +12,33 @@ import { Housekeeping } from './components/Housekeeping'
 import { RoomInventory } from './components/RoomInventory'
 import AuditLogs from './components/AuditLogs'
 import { Login } from './components/Login'
+import { supabase } from './utils/supabaseClient'
 import './tailwind.css'
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [session, setSession] = useState<any>(null);
   const [availableRooms, setAvailableRooms] = useState(18);
   const [page, setPage] = useState("dashboard");
+
+  useEffect(() => {
+    // Listen for auth changes to update UI state immediately
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleBooking = () => {
-  setAvailableRooms(prev => (prev > 0 ? prev - 1 : 0));
+    setAvailableRooms(prev => (prev > 0 ? prev - 1 : 0));
   };
 
-  if (!isLoggedIn) {
-    return <Login onLogin={() => setIsLoggedIn(true)} />;
+  if (!session) {
+    return <Login onLogin={() => {}} />;
   }
 
   return (

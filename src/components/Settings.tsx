@@ -1,16 +1,58 @@
-import React, { useState } from 'react';
-import { Settings as SettingsIcon, Globe, Bell, Shield, Database, Palette, Save, Moon, Sun, Lock, CreditCard, CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings as SettingsIcon, Globe, Bell, Shield, Database, Palette, Save, Moon, Sun, Lock, CreditCard, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { authService } from '../services/authService';
+import type { UserProfile } from '../types';
 
 export const Settings = () => {
     const [theme, setTheme] = useState('light');
     const [notifications, setNotifications] = useState(true);
     const [saveStatus, setSaveStatus] = useState<null | 'saving' | 'saved'>(null);
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const handleSave = () => {
-        setSaveStatus('saving');
-        setTimeout(() => setSaveStatus('saved'), 1500);
-        setTimeout(() => setSaveStatus(null), 4000);
-    };
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const data = await authService.getCurrentProfile();
+            setProfile(data);
+            setLoading(false);
+        };
+        fetchProfile();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <Loader2 className="animate-spin text-slate-300" size={48} />
+                <p className="text-slate-400 font-medium font-mono uppercase tracking-[0.2em] text-[10px]">Verifying Security Access</p>
+            </div>
+        );
+    }
+
+    if (profile?.role !== 'Admin') {
+        return (
+            <div className="flex flex-col items-center justify-center py-24 gap-6 bg-white rounded-[2rem] border border-slate-200 shadow-sm max-w-2xl mx-auto mt-12">
+                <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center">
+                    <Shield className="text-amber-500" size={40} />
+                </div>
+                <div className="text-center space-y-2">
+                    <h2 className="text-2xl font-black text-slate-900">Administrative Access Required</h2>
+                    <p className="text-slate-500 max-w-sm mx-auto leading-relaxed">
+                        The settings panel contains sensitive database configurations and financial rules. 
+                        Your current role (<span className="font-bold text-slate-900">{profile?.role || 'Staff'}</span>) does not have sufficient clearance.
+                    </p>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl flex items-center gap-4 border border-slate-100">
+                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-slate-200">
+                        <Lock className="text-slate-400" size={18} />
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Protocol</p>
+                        <p className="text-xs font-bold text-slate-700">HMS Secure Gateway v2.1</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 max-w-5xl pb-12">

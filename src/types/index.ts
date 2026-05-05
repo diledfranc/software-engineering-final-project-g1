@@ -13,14 +13,15 @@ export interface Guest {
   phone?: string;
 }
 
-export interface Booking {
+export type UserRole = 'Admin' | 'Manager' | 'Receptionist' | 'Staff';
+
+export interface UserProfile {
   id: string;
-  guestId: string;
-  roomId: string;
-  checkInDate: string;
-  checkOutDate: string;
-  status: 'Confirmed' | 'CheckedIn' | 'CheckedOut' | 'Cancelled';
-  totalAmount: number;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatar_url?: string;
+  last_login?: string;
 }
 
 export interface Refund {

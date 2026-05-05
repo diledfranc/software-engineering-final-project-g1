@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { History, Shield, User, Tag, Clock, Search, RefreshCw, FileJson } from 'lucide-react';
+import { History, Shield, User, Tag, Clock, Search, RefreshCw, FileJson, Loader2, Lock } from 'lucide-react';
 import { auditService } from '../services/auditService';
+import { authService } from '../services/authService';
+import type { UserProfile } from '../types';
 
 export default function AuditLogs() {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   const fetchLogs = async () => {
     setLoading(true);
     try {
+      const userProfile = await authService.getCurrentProfile();
+      setProfile(userProfile);
+      
       const data = await auditService.getLogs();
       setLogs(data || []);
     } catch (err) {
@@ -22,6 +28,38 @@ export default function AuditLogs() {
   useEffect(() => {
     fetchLogs();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="h-96 flex flex-col items-center justify-center gap-4">
+        <Loader2 className="animate-spin text-slate-300" size={48} />
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Secure Audit Stream</p>
+      </div>
+    );
+  }
+
+  if (profile?.role !== 'Admin') {
+    return (
+        <div className="flex flex-col items-center justify-center py-24 gap-6 bg-white rounded-[2rem] border border-slate-200 shadow-sm max-w-2xl mx-auto mt-12">
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center">
+                <Lock className="text-red-500" size={40} />
+            </div>
+            <div className="text-center space-y-2">
+                <h2 className="text-2xl font-black text-slate-900">Administrative Privilege Required</h2>
+                <p className="text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    The System Audit Log contains forensic traces of all user activities. 
+                    Access is restricted to System Administrators only.
+                </p>
+            </div>
+            <div className="p-4 bg-slate-50 rounded-2xl flex items-center gap-4 border border-slate-100">
+                <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Incident Report</p>
+                    <p className="text-xs font-bold text-slate-700">Unauthorized access attempt logged</p>
+                </div>
+            </div>
+        </div>
+    );
+  }
 
   const filteredLogs = logs.filter(log => 
     log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||

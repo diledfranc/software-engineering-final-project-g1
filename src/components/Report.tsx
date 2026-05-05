@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, TrendingUp, Users, DoorOpen, DollarSign, Hotel, Loader2 } from 'lucide-react';
+import { Calendar, TrendingUp, Users, DoorOpen, DollarSign, Hotel, Loader2, Shield, Lock } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { authService } from '../services/authService';
+import type { UserProfile } from '../types';
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -30,11 +32,15 @@ export default function Report() {
     roomData: { standard: 0, deluxe: 0, suite: 0 }
   });
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true);
       try {
+        const userProfile = await authService.getCurrentProfile();
+        setProfile(userProfile);
+
         const { data: bookings } = await supabase.from('bookings').select('*');
         const { count: roomsCount } = await supabase.from('rooms').select('*', { count: 'exact', head: true });
         const { count: occupiedCount } = await supabase.from('rooms').select('*', { count: 'exact', head: true }).eq('status', 'occupied');
@@ -67,6 +73,32 @@ export default function Report() {
       </div>
     );
   }
+
+  if (profile?.role !== 'Admin' && profile?.role !== 'Manager') {
+    return (
+        <div className="flex flex-col items-center justify-center py-24 gap-6 bg-white rounded-[2rem] border border-slate-200 shadow-sm max-w-2xl mx-auto mt-12">
+            <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center">
+                <Shield className="text-amber-500" size={40} />
+            </div>
+            <div className="text-center space-y-2">
+                <h2 className="text-2xl font-black text-slate-900">Security Clearance Required</h2>
+                <p className="text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Financial and Operational statistics are restricted to Management. 
+                    Your current role (<span className="font-bold text-slate-900">{profile?.role || 'Staff'}</span>) does not have sufficient clearance.
+                </p>
+            </div>
+            <div className="p-4 bg-slate-50 rounded-2xl flex items-center gap-4 border border-slate-100">
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-slate-200">
+                    <Lock className="text-slate-400" size={18} />
+                </div>
+                <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Protocol</p>
+                    <p className="text-xs font-bold text-slate-700">HMS Secure Reporting Hub v1.0</p>
+                </div>
+            </div>
+        </div>
+    );
+}
 
   return (
     <div className="space-y-8">
